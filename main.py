@@ -22,7 +22,7 @@ class Main:
     def run(self):
         try:
             self.menu.run()
-
+            # Run baseline scan
         except Exception as e:
             self.logger.log(f"An error occurred during scheduled scan: {str(e)}")
 

@@ -2,7 +2,7 @@ class Menu:
 
     def __init__(self):
         self.alert_count = 0  # This can be modified based on actual counts in the future
-
+# add functionality for each menu option based on the rest of the functions in mc-hammer. this should look more similar to the main.py file in mc-hammer with the functions being called after each menu selection.
     def display_menu_options(self):
         print("MC-Hammer Incident Detection and Response Tool")
         print("---------------------------------------------")
