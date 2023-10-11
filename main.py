@@ -5,13 +5,42 @@ import concurrent.futures
 import sys 
 import sched
 from menu import Menu
+from scanner import Scanner
+from actions import Actions
+from logger import Logger
 
 class Main:
     def __init__(self):
         self.menu = Menu()
         self.database_path = "GuardianAngel.db"
         self.s = sched.scheduler(time.time, time.sleep)
-
+        self.scanner = Scanner(self.database_path)
+        self.actions = Actions()
+        self.logger = Logger()
+    
+    def connection_handler(self):
+        with sqlite3.connect(self.database_path) as conn:
+            cursor = conn.cursor()
+        trusted_IP = self.actions.fetch_trusted_IPs(self.database_path)
+        current_connections = self.scanner.get_current_connections()
+        for ip in current_connections:
+            if ip not in trusted_IP:
+                self.logger.log(f"Blocking IP {ip}")
+                self.actions.block_IP(ip)
+                      
+    def baseline_scan(self):
+        start_directory = "C:\\"
+        self.scanner.Baseline_Scan(start_directory)
+        
+    def scheduled_file_scan(self):
+        self.baseline_scan()
+        self.s.enter(7200, 1, self.scheduled_file_scan, ())
+        
+    def scheduled_scan(self):
+        self.connection_handler()
+        self.scanner.Continuous_Scan()
+        self.s.enter(900, 1, self.scheduled_scan, ())
+        
 ## TODO: Change code to use the UI that mark is going to build 
 ## TODO: Build the UI
 ## TODO: Add behavioral analytics from SnapAttack 
@@ -22,7 +51,10 @@ class Main:
     def run(self):
         try:
             self.menu.run()
+            
             # Run baseline scan
+            self.baseline_scan()
+            
         except Exception as e:
             self.logger.log(f"An error occurred during scheduled scan: {str(e)}")
 
