@@ -38,7 +38,7 @@ class Actions:
     def remove_users(self, username):
         try:
             # Using 'net user' command to delete the Guest account
-            os.system(f"net user {username} /actrive:no")
+            os.system(f"net user {username} /active:no")
             self.logger.log(f"User '{username}' has been disabled")
         except Exception as e:
             self.logger.log(f"Error deleting user '{username}' with error: {str(e)}")

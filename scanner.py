@@ -116,7 +116,7 @@ class Scanner:
                 for file in files:
                     file_path = os.path.join(root, file)
                     try:
-                        # Check if the file is an executable accourding to the is_executable function
+                        # Check if the file is an executable according to the is_executable function
                         if not self.is_executable(file_path):
                             continue
                         file_hash = self.compute_md5(file_path)
