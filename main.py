@@ -54,6 +54,17 @@ class Main:
             
             # Run baseline scan
             self.baseline_scan()
+            self.connection_handler()
+            self.scanner.Continuous_Scan()
+            
+            # Continuous scanning
+            self.scheduled_scan()
+            self.scheduled_file_scan()
+            
+            # scheduling
+            self.s.enter(7200, 1, self.scheduled_file_scan, ()) # Schedule the file scan to happen every 2 hours
+            self.s.enter(900, 1, self.scheudled_scan, ())
+            self.s.run()
             
         except Exception as e:
             self.logger.log(f"An error occurred during scheduled scan: {str(e)}")
