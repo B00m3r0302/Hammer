@@ -6,12 +6,10 @@ class Menu:
     def display_menu_options(self):
         print("MC-Hammer Incident Detection and Response Tool")
         print("---------------------------------------------")
-        print("1. Start Scan")
-        print("2. Stop Scan")
-        print("3. View Tables")
-        print("4. Add/Remove Trusted Connections")
-        print(f"5. View Alerts ({self.alert_count})")
-        print("6. Exit")
+        print("1. View Tables")
+        print("2. Add/Remove Trusted Connections")
+        print(f"3. View Alerts ({self.alert_count})")
+        print("4. Exit")
         print("---------------------------------------------")
         choice = input("Enter your choice: ")
         return choice
@@ -52,11 +50,11 @@ class Menu:
         while True:
             choice = self.display_menu_options()
 
-            if choice == "3":
+            if choice == "1":
                 self.view_tables()
-            elif choice == "4":
+            elif choice == "2":
                 self.trusted_connection_option()
-            elif choice == "6":
+            elif choice == "4":
                 print("Exiting program...")
                 break
             else:
