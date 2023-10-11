@@ -47,6 +47,7 @@ class Main:
 ## TODO: Add actions to actions.py based on detections from SnapAttack analytics 
 ## TODO: Find a way to include an AI agent, LLM, or ML into the program with deep learning and a neural network.  If not possible at this time then we should focus on ML and training the model against current detections with the automated responses. 
 ## TODO: Create an 'Alerts' table that combines all of the information from the other discrepancies tables into a single table for ease of use and viewing.
+## TODO: Add threading module to run the entire try block of run concurrently
 
     def run(self):
         try:
