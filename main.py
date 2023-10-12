@@ -56,6 +56,7 @@ class Main:
         
     def run_scans(self):
         self.menu.run()
+        self.add_initial_trusted_connections()
         self.baseline_scan()
         self.connection_handler()
         self.scanner.Continuous_Scan()
