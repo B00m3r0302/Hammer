@@ -1,8 +1,7 @@
 ## main.py
 import time
 import sqlite3
-import concurrent.futures
-import sys 
+import sys
 import sched
 from concurrent.futures import ThreadPoolExecutor
 from menu import Menu
