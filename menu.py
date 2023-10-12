@@ -1,4 +1,5 @@
 from scanner import Scanner
+import threading
 class Menu:
 
     def __init__(self):
@@ -50,12 +51,18 @@ class Menu:
             # Placeholder for the other table views. Implement as needed.
             print(f"Showing data for table option {choice}...")
 
+    def run_scans_with_threads(self):
+        scan_thread = threading.Thread(target=self.scanner.run_scans)
+        scan_thread.start()
+        scan_thread.join()
+        print("\nScan completed!")
+        
     def run(self):
         while True:
             choice = self.display_menu_options()
 
             if choice == "1":
-                self.scanner.run_scans()
+                self.run_scans_with_threads()
             if choice == "2":
                 self.view_tables()
             elif choice == "3":
