@@ -203,7 +203,7 @@ class Scanner:
     def connection_handler(self):
         with sqlite3.connect(self.database_path) as conn:
             cursor = conn.cursor()
-        trusted_IP = self.actions.fetch_trusted_IPs("GuardianAngel.db")
+        trusted_IP = self.actions.fetch_trusted_IPs()
         current_connections = self.get_current_connections()
         for ip in current_connections:
             if ip not in trusted_IP:
