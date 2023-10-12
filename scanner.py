@@ -291,32 +291,32 @@ class Scanner:
             print(f"{subkey} not found.")
         except PermissionError:
             print(f"Permission denied accessing {subkey}. Ensure script is run with administrative permissions.")
-        return data 
+        return data
     
     def fetch_registry_autoruns(self):
-        with sqlite3.connect(self.database_path) as conn:
-            cursor = conn.cursor()
-            
         autorun_locations = [
         (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Microsoft\Windows\\CurrentVersion\\Run"),
         (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Microsoft\Windows\\CurrentVersion\\RunOnce"),
         (winreg.HKEY_CURRENT_USER, r"Software\\Microsoft\Windows\\CurrentVersion\\Run"),
         (winreg.HKEY_CURRENT_USER, r"Software\\Microsoft\Windows\\CurrentVersion\\RunOnce"),
         ]
+        
         all_data = []
         for hive, subkey in autorun_locations:
             data = self.fetch_registry_keys(hive, subkey)
             all_data.extend(data)
         
-        cursor.execute('''
-                       INSERT INTO autoruns (name, value)
-                       VALUES (?, ?)
-        ''', (self.fetch_registry_keys(hive, subkey)))
-        conn.commit()
-    # UPDATE THIS TO ADD THE ACTION INSTEAD OF THE CODE TO DELETE THE REGISTRY ENTRY
-    def continuous_registry_autoruns(self):
         with sqlite3.connect(self.database_path) as conn:
             cursor = conn.cursor()
+            for name, value in all_data:
+                cursor.execute('''
+                               INSERT INTO autoruns (name, value)
+                               VALUES (?, ?)
+                ''', (name, value))
+                conn.commit()
+
+    # UPDATE THIS TO ADD THE ACTION INSTEAD OF THE CODE TO DELETE THE REGISTRY ENTRY
+    def continuous_registry_autoruns(self):
         autorun_locations = [
         (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Microsoft\Windows\\CurrentVersion\\Run"),
         (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\\Microsoft\Windows\\CurrentVersion\\RunOnce"),
@@ -324,13 +324,15 @@ class Scanner:
         (winreg.HKEY_CURRENT_USER, r"Software\\Microsoft\Windows\\CurrentVersion\\RunOnce"),
         ]
         
-        for hive,subkey in autorun_locations:
-            data = self.fetch_registry_autoruns(hive, subkey)
+        with sqlite3.connect(self.database_path) as conn:
+            cursor = conn.cursor()
+            for hive,subkey in autorun_locations:
+                data = self.fetch_registry_keys(hive, subkey)
             
-            for name, value in data:
-                cursor.execute('SELECT * FROM autoruns WHERE name = ? AND value = ?', (name, value))
-                if not cursor.fetchone():
-                    self.actions.delete_registry_autorun(hive, subkey, name)
+                for name, value in data:
+                    cursor.execute('SELECT * FROM autoruns WHERE name = ? AND value = ?', (name, value))
+                    if not cursor.fetchone():
+                        self.actions.delete_registry_autorun(hive, subkey, name)
         
     def get_current_connections(self):
         with sqlite3.connect(self.database_path) as conn:
