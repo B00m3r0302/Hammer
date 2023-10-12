@@ -13,8 +13,8 @@ from actions import Actions
 
 class Scanner:
 
-    def __init__(self):
-        self.database_path = "GuardianAngel.db"
+    def __init__(self, database_path):
+        self.database_path = database_path
         self.logger = Logger()
         self.actions = Actions()
         self.setup_database()
