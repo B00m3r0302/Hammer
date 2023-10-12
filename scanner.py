@@ -14,6 +14,7 @@ from actions import Actions
 class Scanner:
 
     def __init__(self, database_path):
+        database_path = "GuardianAngel.db"
         self.database_path = database_path
         self.logger = Logger()
         self.actions = Actions()
