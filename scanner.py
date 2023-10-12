@@ -348,11 +348,11 @@ class Scanner:
             # Ensuring that  the line has enough parts to be a valid connection 
             if len(parts) >=3:
                 # Extracting local IP and port
-                local_ip, local_port_str = parts[1].rsplit(':', 1)
+                local_ip, local_port_str = parts[1].rsplit(',', 1)
                 local_port = int(local_port_str) # Converting port to an integer
                 
                 # Extracting remote IP and port
-                remote_ip, remote_port_str = parts[2].rsplit(':', 1)
+                remote_ip, remote_port_str = parts[2].rsplit(',', 1)
                 remote_port = int(remote_port_str)
                 
                 # Adding tuple (local_ip, local_port, remote_ip, remote_port) to connections list
