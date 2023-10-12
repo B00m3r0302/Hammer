@@ -1,15 +1,19 @@
+from scanner import Scanner
 class Menu:
 
     def __init__(self):
         self.alert_count = 0  # This can be modified based on actual counts in the future
 # add functionality for each menu option based on the rest of the functions in mc-hammer. this should look more similar to the main.py file in mc-hammer with the functions being called after each menu selection.
+        self.db_path = "GuardianAngel.db"
+        self.scanner = Scanner(self.db_path)
     def display_menu_options(self):
         print("MC-Hammer Incident Detection and Response Tool")
         print("---------------------------------------------")
-        print("1. View Tables")
-        print("2. Add/Remove Trusted Connections")
-        print(f"3. View Alerts ({self.alert_count})")
-        print("4. Exit")
+        print("1. Start Scan")
+        print("2. View Tables")
+        print("3. Add/Remove Trusted Connections")
+        print(f"4. View Alerts ({self.alert_count})")
+        print("5. Exit")
         print("---------------------------------------------")
         choice = input("Enter your choice: ")
         return choice
@@ -51,10 +55,12 @@ class Menu:
             choice = self.display_menu_options()
 
             if choice == "1":
+                self.scanner.run_scans()
+            if choice == "2":
                 self.view_tables()
-            elif choice == "2":
+            elif choice == "3":
                 self.trusted_connection_option()
-            elif choice == "4":
+            elif choice == "5":
                 print("Exiting program...")
                 break
             else:

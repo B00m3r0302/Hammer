@@ -6,6 +6,8 @@ import win32netcon
 import winreg
 import datetime
 import subprocess
+import sched
+import time
 from logger import Logger
 from actions import Actions
 
@@ -16,6 +18,7 @@ class Scanner:
         self.logger = Logger()
         self.actions = Actions()
         self.setup_database()
+        self.s = sched.scheduler(time.time, time.sleep)
 
     def setup_database(self):
         with sqlite3.connect(self.database_path) as conn:
@@ -195,6 +198,16 @@ class Scanner:
             if not resume:
                 break
         return users
+    
+    def connection_handler(self):
+        with sqlite3.connect(self.database_path) as conn:
+            cursor = conn.cursor()
+        trusted_IP = self.actions.fetch_trusted_IPs(self.database_path)
+        current_connections = self.get_current_connections()
+        for ip in current_connections:
+            if ip not in trusted_IP:
+                self.logger.log(f"Blocking IP {ip}")
+                self.actions.block_IP(ip)
 
     def BaselineUsers_Scan(self):
         with sqlite3.connect(self.database_path) as conn:
@@ -275,9 +288,9 @@ class Scanner:
                     except WindowsError:
                         break
         except FileNotFoundError:
-            self.logger.log(f"{subkey} not found.")
+            print(f"{subkey} not found.")
         except PermissionError:
-            self.logger.log(f"Permission denied accessing {subkey}. Ensure script is run with administrative permissions.")
+            print(f"Permission denied accessing {subkey}. Ensure script is run with administrative permissions.")
         return data 
     
     def fetch_registry_autoruns(self):
@@ -347,6 +360,17 @@ class Scanner:
                 conn.commit()
                 
         return connections
+    
+    def add_initial_trusted_connections(self):
+        try:
+            with sqlite3.connect(self.database_path) as conn:
+                cursor = conn.cursor()
+            cursor.execute("INSERT INTO TrustedConnections (IP_Address) VALUES ('127.0.0.1')")
+            
+            conn.commit()
+            
+        except sqlite3.Error as e:
+            self.logger.log(f"Error adding initial trusted connection: {str(e)}")
           
     def Baseline_Scan(self, start_dir):
         self.logger.log("Starting baseline Executables scan...")
@@ -375,11 +399,32 @@ class Scanner:
         self.continuous_registry_autoruns()
         self.logger.log("Current Autoruns scan complete.")
         
+    def baseline_scan(self):
+        start_directory = "C:\\"
+        self.Baseline_Scan(start_directory)
+        
+    def scheduled_file_scan(self):
+        self.baseline_scan()
+        self.s.enter(7200, 1, self.scheduled_file_scan, ())
+        
+    def scheduled_scan(self):
+        self.connection_handler()
+        self.Continuous_Scan()
+        self.s.enter(900, 1, self.scheduled_scan, ())
+        
+    def run_scans(self):
+        self.add_initial_trusted_connections()
+        self.baseline_scan()
+        self.connection_handler()
+        self.Continuous_Scan()
+        self.scheduled_scan()
+        self.scheduled_file_scan()
+        self.s.enter(7200, 1, self.scheduled_file_scan, ()) # Schedule the file scan to happen every 2 hours
+        self.s.enter(900, 1, self.scheduled_scan, ())
+        self.s.run()
 
 
 
 if __name__ == "__main__":
     scanner = Scanner("GuardianAngel.db")
-    scanner.Baseline_Scan()
-    scanner.ExecutablesScan()
-    scanner.Continuous_Scan()
+    scanner.run_scans()
