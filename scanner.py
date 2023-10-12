@@ -201,10 +201,14 @@ class Scanner:
         return users
     
     def connection_handler(self):
+        self.get_current_connections()
+        
         with sqlite3.connect(self.database_path) as conn:
             cursor = conn.cursor()
+            
+        cursor.execute("SELECT local_ip, remote_ip FROM CurrentConnections")
+        current_connections = [ip for row in cursor.fetchall() for ip in row]
         trusted_IP = self.actions.fetch_trusted_IPs()
-        current_connections = self.get_current_connections()
         for ip in current_connections:
             if ip not in trusted_IP:
                 self.logger.log(f"Blocking IP {ip}")
