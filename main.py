@@ -28,6 +28,18 @@ class Main:
             if ip not in trusted_IP:
                 self.logger.log(f"Blocking IP {ip}")
                 self.actions.block_IP(ip)
+    
+    def add_initial_trusted_connections(self):
+        try:
+            with sqlite3.connect(self.database_path) as conn:
+                cursor = conn.cursor()
+            cursor.execute("INSERT INTO TrustedConnections (IP_Address) VALUES ('127.0.0.1')")
+            
+            conn.commit()
+            
+        except sqlite3.Error as e:
+            self.logger.log(f"Error adding initial trusted connection: {str(e)}")
+        
                       
     def baseline_scan(self):
         start_directory = "C:\\"
