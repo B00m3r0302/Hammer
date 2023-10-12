@@ -345,23 +345,26 @@ class Scanner:
             parts = line.split()
             print(parts)
             
-            # Ensuring that  the line has enough parts to be a valid connection 
-            if len(parts) >=3:
+            # Ensuring that  the line has enough parts to be a valid connection
+            if len(parts) < 3 or not (parts[0] == 'TCP' or parts[0] == 'UDP'):
+                continue
+            try:
                 # Extracting local IP and port
-                local_ip, local_port_str = parts[1].rsplit(',', 1)
+                local_ip, local_port_str = parts[1].rsplit(':', 1)
                 local_port = int(local_port_str) # Converting port to an integer
                 
                 # Extracting remote IP and port
-                remote_ip, remote_port_str = parts[2].rsplit(',', 1)
+                remote_ip, remote_port_str = parts[2].rsplit(':', 1)
                 remote_port = int(remote_port_str)
-                
+            except ValueError:
+                self.logger.log(f"Error unpacking IP and port from line: {line}")
                 # Adding tuple (local_ip, local_port, remote_ip, remote_port) to connections list
-                connections.append((local_ip, local_port, remote_ip, remote_port))
-                cursor.execute('''
-                               INSERT INTO CurrentConnections (local_ip, local_port, remote_ip, remote_port)
-                               VALUES (?, ?, ?, ?)
-                ''', (local_ip, local_port, remote_ip, remote_port))
-                conn.commit()
+            connections.append((local_ip, local_port, remote_ip, remote_port))
+            cursor.execute('''
+                            INSERT INTO CurrentConnections (local_ip, local_port, remote_ip, remote_port)
+                            VALUES (?, ?, ?, ?)
+            ''', (local_ip, local_port, remote_ip, remote_port))
+            conn.commit()
                 
         return connections
     
