@@ -120,10 +120,10 @@ class Scanner:
                         if not self.is_executable(file_path):
                             continue
                         file_hash = self.compute_md5(file_path)
-                        print(f"File Name: {file}")
-                        print(f"File Path: {file_path}")
-                        print(f"MD5 Hash: {file_hash}")
-                        print('-' * 50)
+                        self.logger.log(f"File Name: {file}")
+                        self.logger.log(f"File Path: {file_path}")
+                        self.logger.log(f"MD5 Hash: {file_hash}")
+                        self.logger.log('-' * 50)
                         
                         cursor.execute('''
                                        INSERT INTO BaselineExecutables (FileName, FilePath, md5Hash)
@@ -155,10 +155,10 @@ class Scanner:
                         if not self.is_executable(file_path):
                             continue
                         file_hash = self.compute_md5(file_path)
-                        print(f"File Name: {file}")
-                        print(f"File Path: {file_path}")
-                        print(f"MD5 Hash: {file_hash}")
-                        print('-' * 50)
+                        self.logger.log(f"File Name: {file}")
+                        self.logger.log(f"File Path: {file_path}")
+                        self.logger.log(f"MD5 Hash: {file_hash}")
+                        self.logger.log('-' * 50)
                         
                         cursor.execute('''
                                        SELECT * FROM ExecutableDiscrepancies WHERE FileName = ? AND FilePath = ? and md5Hash = ? 
@@ -214,9 +214,9 @@ class Scanner:
                 else:
                     creation_date = None
                 
-                print(f"Username: {username}")
-                print(f"Account Creation Approximation Date: {creation_date}")
-                print('-' * 50)
+                self.logger.log(f"Username: {username}")
+                self.logger.log(f"Account Creation Approximation Date: {creation_date}")
+                self.logger.log('-' * 50)
                 
                 
                 cursor.execute('''
@@ -246,9 +246,9 @@ class Scanner:
                 else:
                     creation_date = None
             
-                print(f"Username: {username}")
-                print(f"Account Creation Approximation Date: {creation_date}")
-                print('-' * 50)
+                self.logger.log(f"Username: {username}")
+                self.logger.log(f"Account Creation Approximation Date: {creation_date}")
+                self.logger.log('-' * 50)
 
                 cursor.execute('''
                                SELECT * FROM BaselineAccounts WHERE username = ? AND AccountCreationDate = ?
@@ -275,9 +275,9 @@ class Scanner:
                     except WindowsError:
                         break
         except FileNotFoundError:
-            print(f"{subkey} not found.")
+            self.logger.log(f"{subkey} not found.")
         except PermissionError:
-            print(f"Permission denied accessing {subkey}. Ensure script is run with administrative permissions.")
+            self.logger.log(f"Permission denied accessing {subkey}. Ensure script is run with administrative permissions.")
         return data 
     
     def fetch_registry_autoruns(self):
