@@ -10,6 +10,7 @@ import sched
 import time
 from logger import Logger
 from actions import Actions
+from menu import Menu
 
 class Scanner:
 
@@ -20,6 +21,7 @@ class Scanner:
         self.actions = Actions()
         self.setup_database()
         self.s = sched.scheduler(time.time, time.sleep)
+        self.menu = Menu()
 
     def setup_database(self):
         with sqlite3.connect(self.database_path) as conn:
@@ -446,3 +448,5 @@ class Scanner:
 if __name__ == "__main__":
     scanner = Scanner("GuardianAngel.db")
     scanner.run_scans()
+    
+    Menu.run()
