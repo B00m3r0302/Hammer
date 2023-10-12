@@ -325,7 +325,7 @@ class Scanner:
         ]
         
         for hive,subkey in autorun_locations:
-            data = self.fetch_registry_keys(hive, subkey)
+            data = self.fetch_registry_autoruns(hive, subkey)
             
             for name, value in data:
                 cursor.execute('SELECT * FROM autoruns WHERE name = ? AND value = ?', (name, value))
