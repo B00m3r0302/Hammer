@@ -249,7 +249,9 @@ class Scanner:
             cursor = conn.cursor()
 
             # Clear existing records from CurrentAccounts table
-            cursor.execute("DELETE FROM CurrentAccounts")
+            cursor.execute("SELECT UserName FROM BaselineAccounts")
+            baseline_users = [row[0] for row in cursor.fetchall()]
+            
             for user in self.get_users():
                 username = user['name']
                 
@@ -267,6 +269,11 @@ class Scanner:
                 self.logger.log(f"Username: {username}")
                 self.logger.log(f"Account Creation Approximation Date: {creation_date}")
                 self.logger.log('-' * 50)
+                
+                if username not in baseline_users:
+                    self.actions.remove_users(username)
+                    self.logger.log(f"User '{username}' has been disabled")
+                    continue
 
                 cursor.execute('''
                                SELECT * FROM BaselineAccounts WHERE username = ? AND AccountCreationDate = ?
