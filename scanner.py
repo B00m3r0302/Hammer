@@ -343,6 +343,7 @@ class Scanner:
         
         for line in result:
             parts = line.split()
+            print(parts)
             
             # Ensuring that  the line has enough parts to be a valid connection 
             if len(parts) >=3:
