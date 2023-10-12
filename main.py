@@ -4,6 +4,7 @@ import sqlite3
 import concurrent.futures
 import sys 
 import sched
+from concurrent.futures import ThreadPoolExecutor
 from menu import Menu
 from scanner import Scanner
 from actions import Actions
@@ -41,6 +42,17 @@ class Main:
         self.scanner.Continuous_Scan()
         self.s.enter(900, 1, self.scheduled_scan, ())
         
+    def run_scans(self):
+        self.menu.run()
+        self.baseline_scan()
+        self.connection_handler()
+        self.scanner.Continuous_Scan()
+        self.scheduled_scan()
+        self.scheduled_file_scan()
+        self.s.enter(7200, 1, self.scheduled_file_scan, ()) # Schedule the file scan to happen every 2 hours
+        self.s.enter(900, 1, self.scheduled_scan, ())
+        self.s.run()
+        
 ## TODO: Change code to use the UI that mark is going to build 
 ## TODO: Build the UI
 ## TODO: Add behavioral analytics from SnapAttack 
@@ -51,21 +63,9 @@ class Main:
 
     def run(self):
         try:
-            self.menu.run()
-            
-            # Run baseline scan
-            self.baseline_scan()
-            self.connection_handler()
-            self.scanner.Continuous_Scan()
-            
-            # Continuous scanning
-            self.scheduled_scan()
-            self.scheduled_file_scan()
-            
-            # scheduling
-            self.s.enter(7200, 1, self.scheduled_file_scan, ()) # Schedule the file scan to happen every 2 hours
-            self.s.enter(900, 1, self.scheduled_scan, ())
-            self.s.run()
+            with ThreadPoolExecutor() as executor:
+                future = executor.submit(self.run_scans)
+                result = future.result()
             
         except Exception as e:
             self.logger.log(f"An error occurred during scheduled scan: {str(e)}")
